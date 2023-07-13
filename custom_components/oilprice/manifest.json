@@ -2,8 +2,9 @@
   "domain": "oilprice",
   "name": "oilprice",
   "config_flow": true,
-  "version": "0.0.1",
-  "documentation": "http://www.qiyoujiage.com/",
+  "version": "0.0.2",
+  "documentation": "https://github.com/yyned2501/oilprice",
+  "issue_tracker": "https://github.com/yyned2501/oilprice/issues",
   "dependencies": [],
   "codeowners": ["@yy"],
   "requirements": ["requests", "beautifulsoup4"]
