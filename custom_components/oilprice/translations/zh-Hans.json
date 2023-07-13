@@ -1,0 +1,30 @@
+{
+  "config": {
+    "error": {
+      "region": "请填写地区"
+    },
+    "step": {
+      "user": {
+        "title": "今日油价",
+        "description": "今日油价小插件",
+        "data": {
+          "region": "地区"
+        }
+      }
+    }
+  },
+  "options": {
+    "error": {
+      "region": "请填写地区"
+    },
+    "step": {
+      "init": {
+        "title": "今日油价",
+        "description": "今日油价小插件",
+        "data": {
+          "region": "地区"
+        }
+      }
+    }
+  }
+}

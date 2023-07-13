@@ -1,0 +1,7 @@
+{
+    "name": "oilprice",
+    "render_readme": true,
+    "domain": "oilprice",
+    "documentation": "https://github.com/yyned2501/oilprice",
+    "issue_tracker": "https://github.com/yyned2501/oilprice/issues"
+}
