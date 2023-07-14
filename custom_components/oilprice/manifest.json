@@ -2,10 +2,10 @@
   "domain": "oilprice",
   "name": "oilprice",
   "config_flow": true,
-  "version": "v1.0.1",
+  "version": "v1.0.2",
   "documentation": "https://github.com/yyned2501/oilprice",
   "issue_tracker": "https://github.com/yyned2501/oilprice/issues",
   "dependencies": [],
   "codeowners": ["@yyned2501"],
-  "requirements": ["requests", "beautifulsoup4"]
+  "requirements": ["beautifulsoup4","lxml"]
 }
