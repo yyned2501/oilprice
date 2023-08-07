@@ -1,6 +1,6 @@
 # oilprice
 
-- 这是一个用Python编写的爬虫程序，可以从[http://www.qiyoujiage.com/](http://www.qiyoujiage.com/)网站获取最新的石油价格数据，并传递到homeassistant。
+- 这是一个用Python编写的爬虫程序，可以从[http://www.qiyoujiage.com/](http://www.qiyoujiage.com/)网站获取最新的油价数据，并传递到homeassistant。
 
 ## 功能
 
