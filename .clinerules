@@ -1,0 +1,29 @@
+# Oil Price Home Assistant Custom Component 开发规范 (.clinerules)
+
+这是本油价组件项目的总则，AI 在进行任何代码修改、功能迭代或异常修复时必须严格遵守。
+
+## 1. 核心网络与并发规范
+- **严禁直接创建 ClientSession**: 禁止在代码中使用 `async with aiohttp.ClientSession()` 或者是 `requests` 同步库来抓取网页。
+- **统一采用共享连接池**: 必须且仅能通过 Home Assistant 共享的连接池 `async_get_clientsession(hass)` 机制来发起请求，以确保连接复用和框架稳定性。
+- **超时保护**: 所有的异步网络操作必须使用 Python 3.11+ 标准库原生的 `asyncio.timeout` 进行时间边界控制，严禁无限等待。
+
+## 2. 爬虫与 BeautifulSoup 解析鲁棒性
+- **降级容错红线**: 在进行 HTML DOM 解析时，由于目标网站（qiyoujiage.com）的排版可能随时间微调，**严禁对任何可能不存在的节点进行直接的链式索引读取**。
+- **分组异常控制**: 所有的解析模块（如“下次调整时间”、“单项油价”、“跌涨提示”）必须采用独立的 `try-except` 进行精细容错。如果某一项解析失败，应当返回默认值（如 `"未知"` / `"暂无"`）并记录警告日志，**严禁因单个元素缺失直接向上传播异常，导致整个 Coordinator 崩溃**。
+- **免编译解析引擎**: BeautifulSoup 解析引擎强制统一使用内置的 `html.parser`，严禁使用含有底层 C 依赖编译的 `lxml`，以保证树莓派等 ARM 网关的极致兼容性。
+
+## 3. 实体与状态同步规范
+- **数据一致性控制**: 传感器数据更新必须全部绑定并托管在 `MyCoordinator` 中，严禁每个传感器单独去发请求。
+- **状态同步挂钩**: 在传感器类 `OilPriceSensor` 中，必须通过 `CoordinatorEntity` 来拦截更新并调用 `async_write_ha_state()`。
+- **日志标准**: 所有输出必须使用统一的 `_LOGGER` 库输出（如 `_LOGGER.info`, `_LOGGER.warning`），**在整个项目中严禁出现 `print()` 调试代码**。
+
+## 4. Git 提交规范
+- **Commit 语言偏好**: **所有的 Git 提交说明（Commit Message）必须全中文编写**，消息格式推荐：
+  *   `feat: 新增...`
+  *   `fix: 修复...`
+  *   `refactor: 重构...`
+  *   `chore: 整理...`
+
+## 5. 开发步骤说明
+- **修改前读档**: 在修改任何代码逻辑前，必须仔细通读 `ARCHITECTURE.md` 了解模块调用和数据流方向。
+- **无损修改**: 修改逻辑必须增量、聚焦，严禁混入大规模的破坏性无关重构，保证质量关卡的平稳。
