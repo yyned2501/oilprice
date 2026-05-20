@@ -1,0 +1,49 @@
+name: Auto Tag on Master Push
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # 需要使用 PAT，才能在 push tag 后继续触发 release 工作流
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "418982+github-actions[bot]@users.noreply.github.com"
+
+      - name: Calculate next tag
+        id: next_tag
+        shell: bash
+        run: |
+          LATEST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
+          fi
+
+          VERSION=${LATEST_TAG#v}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          NEXT_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+
+          echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          echo "next_tag=$NEXT_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        env:
+          NEXT_TAG: ${{ steps.next_tag.outputs.next_tag }}
+        run: |
+          git tag "$NEXT_TAG"
+          git push origin "$NEXT_TAG"
