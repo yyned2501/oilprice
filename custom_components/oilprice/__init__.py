@@ -1,6 +1,4 @@
-import asyncio
 import logging
-
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
@@ -12,34 +10,46 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    _LOGGER.info("async_setup_entry in init")
-    # 全局注册一个set，用来共享数据
+    """设置配置条目，初始化协调器并加载平台"""
+    _LOGGER.info("正在初始化今日油价集成...")
+    
+    # 初始化全局数据存储
     hass.data.setdefault(DOMAIN, {})
-    hass_data = dict(entry.data)
-    unsub_options_update_listener = entry.add_update_listener(options_update_listener)
-    hass_data["unsub_options_update_listener"] = unsub_options_update_listener
-    hass_data["coordinator"] = MyCoordinator(hass, entry)
+    
+    # 实例化数据更新协调器
+    coordinator = MyCoordinator(hass, entry)
+    
+    # 在注册平台实体前，先执行首次异步数据拉取，确保实体加载时能立即获得初始状态
+    await coordinator.async_config_entry_first_refresh()
+    
+    # 存储集成运行时所需的数据
+    hass_data = {
+        "coordinator": coordinator,
+        "unsub_options_update_listener": entry.add_update_listener(options_update_listener)
+    }
     hass.data[DOMAIN][entry.entry_id] = hass_data
 
-    # 添加设备
-    for sd in DEVICES:
-        hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, sd))
+    # 采用现代且推荐的 API 一键并行加载传感器和按钮平台
+    await hass.config_entries.async_forward_entry_setups(entry, DEVICES)
     return True
 
 
-async def options_update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
+async def options_update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """选项更新监听器，当用户在 UI 中修改配置时触发重载"""
+    _LOGGER.info("检测到配置选项更新，正在重新加载集成...")
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    unload_ok = all(
-        await asyncio.gather(
-            *[hass.config_entries.async_forward_entry_unload(entry, sd) for sd in DEVICES]
-        )
-    )
-    # 删除设备时不用重启
-    hass.data[DOMAIN][entry.entry_id]["unsub_options_update_listener"]()
+    """卸载配置条目，清理并释放资源"""
+    _LOGGER.info("正在卸载今日油价集成...")
+    
+    # 采用标准的一键卸载平台 API
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, DEVICES)
+    
     if unload_ok:
+        # 注销更新监听器并清理缓存数据
+        hass.data[DOMAIN][entry.entry_id]["unsub_options_update_listener"]()
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
