@@ -1,0 +1,4 @@
+refresh:
+  name: Refresh oil price data
+  description: Manually refresh oil price data from qiyoujiage.com for all configured regions.
+  fields: {}

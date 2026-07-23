@@ -1,30 +1,41 @@
 {
   "config": {
     "error": {
-      "region": "请填写地区"
+      "region": "请选择地区"
     },
     "step": {
       "user": {
         "title": "今日油价",
-        "description": "今日油价小插件",
+        "description": "选择省份获取最新油价信息",
         "data": {
-          "region": "地区"
+          "region": "省份"
         }
       }
     }
   },
   "options": {
     "error": {
-      "region": "请填写地区"
+      "region": "请选择地区"
     },
     "step": {
       "init": {
         "title": "今日油价",
-        "description": "今日油价小插件",
+        "description": "修改省份获取最新油价信息",
         "data": {
-          "region": "地区"
+          "region": "省份"
         }
       }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "oil_89": {"name": "89#汽油"},
+      "oil_92": {"name": "92#汽油"},
+      "oil_95": {"name": "95#汽油"},
+      "oil_98": {"name": "98#汽油"},
+      "oil_0": {"name": "0#柴油"},
+      "oil_next_change_date": {"name": "下次调整时间"},
+      "oil_tips": {"name": "预测提示"}
     }
   }
 }

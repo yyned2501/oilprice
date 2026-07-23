@@ -48,7 +48,7 @@ class RefreshButton(CoordinatorEntity[MyCoordinator], ButtonEntity):
             name=f"今日油价 - {self.coordinator_name}",
             manufacturer="@YY",
             model=DOMAIN,
-            sw_version="1.0.3",
+            sw_version="1.0.4",
         )
 
     async def async_press(self) -> None:
